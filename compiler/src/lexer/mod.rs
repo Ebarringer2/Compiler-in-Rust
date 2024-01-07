@@ -49,7 +49,6 @@ impl<'a> Lexer<'a> {
         Token::EndofFile
     }
     pub fn analyze(&mut self) {
-        let input: &[u8] = self.input;
         loop {
             let token: &mut Token = &mut self.next_token();
             println!("{:?}", token);
