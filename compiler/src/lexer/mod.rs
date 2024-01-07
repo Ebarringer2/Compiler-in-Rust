@@ -3,6 +3,9 @@ enum Token {
     Number(i64),
     Plus,
     Minus,
+    Multiply,
+    Divide,
+    Exp,
     EndofFile
 }
 
@@ -34,14 +37,44 @@ impl<'a> Lexer<'a> {
                     }
                 }
                 let number_slice: &[u8] = &self.input[start..self.position];
-                let number_str: &str = std::str::from_utf8(number_slice).unwrap_or("0");
-                let number = number_str.parse::<i64>().unwrap_or(0);
-                return Token::Number(number);
+                //if let Some(&b'*') = self.input.get(self.position) && let Some(&b'*') = self.input.get(self.position + 1) {
+                if self.input.get(self.position) == Some(&b'*') && self.input.get(self.position + 1) == Some(&b'*') {
+                    self.position += 2;
+                    return Token::Exp
+                } else if self.input.get(self.position) == Some(&b'*') {
+                    self.position += 1;
+                    return Token::Multiply
+                } else {
+                    let number_str: &str = std::str::from_utf8(number_slice).unwrap_or("0");
+                    let number: i64 = number_str.parse::<i64>().unwrap_or(0);
+                    return Token::Number(number);
+                }
+                /*
+                
+                 
+                    //self.position += 1;
+                    if let Some(&b'*') = self.input.get(self.position) {
+                        self.position += 1;
+                        return Token::Exp;
+                    } else {
+                        return Token::Multiply;
+                    }
+                */
+                
+                /* 
+                } else {
+                    let number_str: &str = std::str::from_utf8(number_slice).unwrap_or("0");
+                    let number = number_str.parse::<i64>().unwrap_or(0);
+                    return Token::Number(number);
+                } 
+                */ 
             } else {
                 self.position += 1;
                 match c {
                     b'+' => return Token::Plus,
                     b'-' => return Token::Minus,
+                    //b'*' => return Token::Multiply,
+                    b'/' => return Token::Divide,
                     _ => panic!("Invalid character: {}", c as char),
                 }
             }
