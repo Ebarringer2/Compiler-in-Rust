@@ -1,7 +1,7 @@
 const EXP: u8 = b'^';
 
 #[derive(Debug)]
-enum Token {
+pub enum Token {
     Number(i64),
     Plus,
     Minus,
@@ -9,6 +9,14 @@ enum Token {
     Divide,
     Exp,
     EndofFile
+}
+
+impl Copy for Token { }
+
+impl Clone for Token {
+    fn clone(&self) -> Self {
+        *self
+    }
 }
 
 pub struct Lexer<'a> {

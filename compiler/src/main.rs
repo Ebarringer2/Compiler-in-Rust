@@ -1,5 +1,6 @@
 mod file_map;
 mod lexer;
+mod parser;
 
 use file_map::FileMap;
 use lexer::Lexer;
