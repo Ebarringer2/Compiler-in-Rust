@@ -9,7 +9,16 @@ pub struct Parser<'a> {
 #[derive(Debug, Clone)]
 pub enum Expr {
     Number(i64),
-    BinOp(Box<Expr>, Token, Box<Expr>)
+    BinOp(Box<Expr>, Operator, Box<Expr>)
+}
+
+#[derive(Debug, Clone)]
+pub enum Operator {
+    Add,
+    Subtract,
+    Multiply,
+    Divide,
+    Exp
 }
 
 impl<'a> Parser<'a> {
@@ -38,7 +47,14 @@ impl<'a> Parser<'a> {
                     self.current += 1;
                     let temp_expr: Expr = self.ast.pop().unwrap();
                     let right_expr: Expr = self.parse_factor();
-                    let operator: Token = token.clone();
+                    let operator: Operator = match token {
+                        Token::Plus => Operator::Add,
+                        Token::Minus => Operator::Subtract,
+                        Token::Multiply => Operator::Multiply,
+                        Token::Divide => Operator::Divide,
+                        Token::Exp => Operator::Exp,
+                        _ => unreachable!()
+                    };
                     self.ast.push(Expr::BinOp(Box::new(temp_expr), operator, Box::new(right_expr)));
                 }
                 _ => break
@@ -50,6 +66,8 @@ impl<'a> Parser<'a> {
     }
     pub fn parse(&mut self) {
         self.parse_term();
-        println!("Parsed AST: {:?}", self.ast);
+    }
+    pub fn get_ast(&self) -> &Vec<Expr> {
+        return &self.ast;
     }
 }
