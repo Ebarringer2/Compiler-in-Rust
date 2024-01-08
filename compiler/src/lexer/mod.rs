@@ -1,3 +1,5 @@
+const EXP: u8 = b'*';
+
 #[derive(Debug)]
 enum Token {
     Number(i64),
@@ -25,61 +27,54 @@ impl<'a> Lexer<'a> {
     }
     fn next_token(&mut self) -> Token {
         while let Some(&c) = self.input.get(self.position) {
-            if c == b' ' {
-                self.position += 1;
-            } else if c.is_ascii_digit() {
-                let start = self.position;
-                while let Some(&digit) = self.input.get(self.position) {
-                    if digit.is_ascii_digit() {
-                        self.position += 1
+            match c {
+                b' ' => self.position += 1,
+                b'0'..=b'9' => {
+                    let start = self.position;
+                    while let Some(&digit) = self.input.get(self.position) {
+                        if digit.is_ascii_digit() {
+                            self.position += 1;
+                        } else {
+                            break;
+                        }
+                    }
+                    let number_slice: &[u8] = &self.input[start..self.position];
+                    if self.input.get(self.position) == Some(&EXP) && self.input.get(self.position + 1) == Some(&EXP) {
+                        self.position += 2;
+                        return Token::Exp
+                    } else if Some(&b'*') == self.input.get(self.position) {
+                        self.position += 1;
+                        return Token::Multiply;
                     } else {
-                        break;
+                        let number_str: &str = std::str::from_utf8(number_slice).unwrap_or("0");
+                        let number: i64 = number_str.parse::<i64>().unwrap_or(0);
+                        return Token::Number(number);
                     }
                 }
-                let number_slice: &[u8] = &self.input[start..self.position];
-                //if let Some(&b'*') = self.input.get(self.position) && let Some(&b'*') = self.input.get(self.position + 1) {
-                if self.input.get(self.position) == Some(&b'*') && self.input.get(self.position + 1) == Some(&b'*') {
-                    self.position += 2;
-                    return Token::Exp
-                } else if self.input.get(self.position) == Some(&b'*') {
+                b'+' => {
+                    self.position += 1;
+                    return Token::Plus
+                }
+                b'-' => {
+                    self.position += 1;
+                    return Token::Minus;
+                }
+                b'/' => {
+                    self.position += 1;
+                    return Token::Divide;
+                }
+                EXP => {
+                    self.position += 1;
+                    return Token::Exp;
+                }
+                b'*' => {
                     self.position += 1;
                     return Token::Multiply
-                } else {
-                    let number_str: &str = std::str::from_utf8(number_slice).unwrap_or("0");
-                    let number: i64 = number_str.parse::<i64>().unwrap_or(0);
-                    return Token::Number(number);
                 }
-                /*
-                
-                 
-                    //self.position += 1;
-                    if let Some(&b'*') = self.input.get(self.position) {
-                        self.position += 1;
-                        return Token::Exp;
-                    } else {
-                        return Token::Multiply;
-                    }
-                */
-                
-                /* 
-                } else {
-                    let number_str: &str = std::str::from_utf8(number_slice).unwrap_or("0");
-                    let number = number_str.parse::<i64>().unwrap_or(0);
-                    return Token::Number(number);
-                } 
-                */ 
-            } else {
-                self.position += 1;
-                match c {
-                    b'+' => return Token::Plus,
-                    b'-' => return Token::Minus,
-                    //b'*' => return Token::Multiply,
-                    b'/' => return Token::Divide,
-                    _ => panic!("Invalid character: {}", c as char),
-                }
+                _ => panic!("invalid character: {}", c as char)
             }
         }
-        Token::EndofFile
+        return Token::EndofFile;
     }
     pub fn analyze(&mut self) {
         loop {

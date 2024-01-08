@@ -1,3 +1,5 @@
+mod char_codes;
+
 use std::fs::File;
 use std::io::{self, Read};
 
