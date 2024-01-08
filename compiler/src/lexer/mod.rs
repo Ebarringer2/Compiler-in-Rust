@@ -1,4 +1,4 @@
-const EXP: u8 = b'*';
+const EXP: u8 = b'^';
 
 #[derive(Debug)]
 enum Token {
@@ -39,8 +39,8 @@ impl<'a> Lexer<'a> {
                         }
                     }
                     let number_slice: &[u8] = &self.input[start..self.position];
-                    if self.input.get(self.position) == Some(&EXP) && self.input.get(self.position + 1) == Some(&EXP) {
-                        self.position += 2;
+                    if self.input.get(self.position) == Some(&EXP) {
+                        self.position += 1;
                         return Token::Exp
                     } else if Some(&b'*') == self.input.get(self.position) {
                         self.position += 1;
@@ -51,15 +51,15 @@ impl<'a> Lexer<'a> {
                         return Token::Number(number);
                     }
                 }
-                b'+' => {
+                43 => {
                     self.position += 1;
                     return Token::Plus
                 }
-                b'-' => {
+                45 => {
                     self.position += 1;
                     return Token::Minus;
                 }
-                b'/' => {
+                47 => {
                     self.position += 1;
                     return Token::Divide;
                 }
@@ -67,7 +67,7 @@ impl<'a> Lexer<'a> {
                     self.position += 1;
                     return Token::Exp;
                 }
-                b'*' => {
+                42 => {
                     self.position += 1;
                     return Token::Multiply
                 }
