@@ -20,34 +20,36 @@ impl<'a> Parser<'a> {
             ast: Vec::new()
         }
     }
-    fn parse_number(&mut self, ast: &mut Vec<Expr>) -> Expr {
+    fn parse_number(&mut self) -> Expr {
         if let Some(&Token::Number(value)) = self.tokens.get(self.current) {
             self.current += 1;
             let expr: Expr = Expr::Number(value);
-            ast.push(expr.clone());
+            self.ast.push(expr.clone());
             expr
         } else {
             panic!("Expected a number")
         }
     }
-    fn parse_term(&mut self, ast: &mut Vec<Expr>) {
-        self.parse_number(ast);
+    fn parse_term(&mut self) {
+        self.parse_factor();
         while let Some(&token) = self.tokens.get(self.current) {
             match token {
                 Token::Plus | Token::Minus | Token::Multiply | Token::Divide => {
                     self.current += 1;
-                    let temp_expr: Expr = ast.pop().unwrap();
-                    let right_expr: Expr = self.parse_number(ast);
+                    let temp_expr: Expr = self.ast.pop().unwrap();
+                    let right_expr: Expr = self.parse_factor();
                     let operator: Token = token.clone();
-                    ast.push(Expr::BinOp(Box::new(temp_expr), operator, Box::new(right_expr)));
+                    self.ast.push(Expr::BinOp(Box::new(temp_expr), operator, Box::new(right_expr)));
                 }
                 _ => break
             }
         }
     }
+    fn parse_factor(&mut self) -> Expr {
+        self.parse_number()
+    }
     pub fn parse(&mut self) {
-        let mut ast: Vec<_> = Vec::new();
-        self.parse_term(&mut ast);
+        self.parse_term();
         println!("Parsed AST: {:?}", self.ast);
     }
 }
