@@ -1,26 +1,11 @@
 use crate::parser::Expr;
 use crate::parser::Operator;
 
-//#[derive(Debug, Clone)]
-/*enum Expr {
-    Number(i64),
-    BinOp(Box<Expr>, Operator, Box<Expr>)
-}
-*/
-
-/*#[derive(Debug, Clone)]
-enum Operator {
-    Add,
-    Subtract
-}
-*/
-
-
 pub fn generate_asm(ast: &[Expr]) -> String {
-    let pow_function = generate_pow_function();
-    let main_code = ast
+    let pow_function: String = generate_pow_function();
+    let main_code: String = ast
         .iter()
-        .map(|expr| generate_asm_single(expr))
+        .map(|expr: &Expr| generate_asm_single(expr))
         .collect::<Vec<_>>()
         .join("\n");
 
@@ -29,18 +14,18 @@ pub fn generate_asm(ast: &[Expr]) -> String {
 
 fn generate_asm_single(expr: &Expr) -> String {
     match expr {
-        Expr::Number(value) => format!("mov eax, {}", value),
+        Expr::Number(value) => format!("push {}", value),
         Expr::BinOp(left, op, right) => {
             //let left_code = generate_asm_single(left);
             let right_code = generate_asm_single(right);
 
             match op {
-                Operator::Add => format!("add eax, {}", right_code),
-                Operator::Subtract => format!("sub eax, {}", right_code),
-                Operator::Multiply => format!("imul eax, {}", right_code),
-                Operator::Divide => format!("idiv eax, {}", right_code),
+                Operator::Add => format!("pop rdi\nadd rdi, {}", right_code),
+                Operator::Subtract => format!("pop rdi\nsub rdi, {}", right_code),
+                Operator::Multiply => format!("pop rdi\nimul rdi, {}", right_code),
+                Operator::Divide => format!("pop rdi\nidiv rdi, {}", right_code),
                 Operator::Exp => {
-                    format!("push rdi\nmov rdi, {}\npush rsi\ncall pow\npop rsi\npop rdi", right_code)
+                    format!("pop rdi\npush {}\ncall pow\nadd rsp, 8", right_code)
                 }
             }
         }
