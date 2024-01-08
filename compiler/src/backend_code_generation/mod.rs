@@ -15,17 +15,17 @@ pub fn generate_asm(ast: &[Expr]) -> String {
 fn generate_asm_single(expr: &Expr) -> String {
     match expr {
         Expr::Number(value) => format!("push {}", value),
-        Expr::BinOp(left, op, right) => {
+        Expr::BinOp(_left, op, right) => {
             //let left_code = generate_asm_single(left);
             let right_code = generate_asm_single(right);
-
             match op {
                 Operator::Add => format!("pop rdi\nadd rdi, {}", right_code),
                 Operator::Subtract => format!("pop rdi\nsub rdi, {}", right_code),
                 Operator::Multiply => format!("pop rdi\nimul rdi, {}", right_code),
                 Operator::Divide => format!("pop rdi\nidiv rdi, {}", right_code),
                 Operator::Exp => {
-                    format!("pop rdi\npush {}\ncall pow\nadd rsp, 8", right_code)
+                    println!("RIGHT CODE: {}", right_code);
+                    format!("pop rdi\n{}\ncall pow", right_code)
                 }
             }
         }
