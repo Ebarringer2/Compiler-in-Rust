@@ -6,7 +6,7 @@ pub struct Parser<'a> {
 }
 
 #[derive(Debug)]
-enum Expr {
+pub enum Expr {
     Number(i64),
     BinOp(Box<Expr>, Token, Box<Expr>)
 }

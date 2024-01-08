@@ -84,13 +84,16 @@ impl<'a> Lexer<'a> {
         }
         return Token::EndofFile;
     }
-    pub fn analyze(&mut self) {
+    pub fn analyze(&mut self) -> Vec<Token> {
+        let mut tokens: Vec<_> = Vec::new();
         loop {
             let token: &mut Token = &mut self.next_token();
             println!("{:?}", token);
+            tokens.push(token.clone());
             if let Token::EndofFile = token {
                 break;
             }
         }
+        return tokens;
     }
 }
