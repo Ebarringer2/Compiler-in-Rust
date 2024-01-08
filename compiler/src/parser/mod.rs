@@ -34,7 +34,7 @@ impl<'a> Parser<'a> {
         self.parse_factor();
         while let Some(&token) = self.tokens.get(self.current) {
             match token {
-                Token::Plus | Token::Minus | Token::Multiply | Token::Divide => {
+                Token::Plus | Token::Minus | Token::Multiply | Token::Divide | Token::Exp => {
                     self.current += 1;
                     let temp_expr: Expr = self.ast.pop().unwrap();
                     let right_expr: Expr = self.parse_factor();
