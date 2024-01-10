@@ -24,4 +24,12 @@ impl FileMap {
     pub fn as_slice(&self) -> &[u8] {
         &self.data
     }
+    pub fn get_text(&self) {
+        if let Ok(text) = String::from_utf8(self.data.clone()) {
+            println!("FILE TEXT CONTENT");
+            println!("{}", text);
+        } else {
+            eprintln!("Error converting byte slice to string");
+        }
+    }
 }
