@@ -14,10 +14,7 @@ impl FileMap {
     /// 
     /// for lexical analysis
     pub fn new(file_path: &str) -> io::Result<Self> {
-    	println!("\n\n");
-    	println!("ATTEMPTING TO CREATE FILE MAP WITH PATH: {}", file_path);
-	println!("\n\n");
-	let mut file: File = File::open(file_path)?;
+        let mut file: File = File::open(file_path)?;
         let file_size: usize = file.metadata()?.len() as usize;
         let mut data: Vec<_> = Vec::with_capacity(file_size);
         unsafe { data.set_len(file_size) }
