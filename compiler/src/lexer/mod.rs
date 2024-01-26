@@ -1,6 +1,13 @@
 const EXP: u8 = b'^';
 
 #[derive(Debug)]
+pub struct Parenthetical {
+    pub left_operand: Token,
+    pub operator: Token,
+    pub right_operand: Token
+}
+
+#[derive(Debug)]
 pub enum Token {
     Number(i64),
     Plus,
@@ -8,7 +15,38 @@ pub enum Token {
     Multiply,
     Divide,
     Exp,
-    EndofFile
+    EndofFile,
+    OpenParen,
+    CloseParen
+}
+
+impl Copy for Parenthetical { } 
+
+impl Clone for Parenthetical {
+    fn clone(&self) -> Self {
+        *self
+    }
+}
+
+impl Parenthetical {
+    /// Creates a new Parenthetical object
+    pub fn new(left_operand: Token, operator: Token, right_operand: Token) -> Parenthetical {
+        Parenthetical {
+            left_operand,
+            operator,
+            right_operand
+        }
+    }
+
+    /// Returns the operands of a Parenthetical object as a tuple
+    pub fn get_operands(&self) -> (Token, Token) {
+        (self.left_operand, self.right_operand)
+    }
+
+    /// Returns the operator of a Parenthetical object
+    pub fn get_operator(&self) -> Token {
+        self.operator
+    }
 }
 
 impl Copy for Token { }
@@ -36,6 +74,14 @@ impl<'a> Lexer<'a> {
     fn next_token(&mut self) -> Token {
         while let Some(&c) = self.input.get(self.position) {
             match c {
+                b'(' => {
+                    self.position += 1;
+                    return Token::OpenParen;
+                }
+                b')' => {
+                    self.position += 1;
+                    return Token::CloseParen;
+                }
                 b' ' => self.position += 1,
                 b'0'..=b'9' => {
                     let start = self.position;

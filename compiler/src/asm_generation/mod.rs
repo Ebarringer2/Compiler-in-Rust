@@ -16,7 +16,6 @@ fn generate_asm_single(expr: &Expr) -> String {
     match expr {
         Expr::Number(value) => format!("push {}", value),
         Expr::BinOp(_left, op, right) => {
-            //let left_code = generate_asm_single(left);
             let right_code = generate_asm_single(right);
             match op {
                 Operator::Add => format!("pop rdi\nadd rdi, {}", right_code),
@@ -29,6 +28,7 @@ fn generate_asm_single(expr: &Expr) -> String {
                 }
             }
         }
+        Expr::Paren(inner_expr) => generate_asm_single(inner_expr), // Handle Paren expression
     }
 }
 

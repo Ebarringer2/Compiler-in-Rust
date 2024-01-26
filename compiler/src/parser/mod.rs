@@ -3,13 +3,14 @@ use crate::lexer::Token;
 pub struct Parser<'a> {
     tokens: &'a [Token],
     current: usize,
-    ast: Vec<Expr>
+    ast: Vec<Expr>,
 }
 
 #[derive(Debug, Clone)]
 pub enum Expr {
     Number(i64),
-    BinOp(Box<Expr>, Operator, Box<Expr>)
+    BinOp(Box<Expr>, Operator, Box<Expr>),
+    Paren(Box<Expr>),
 }
 
 #[derive(Debug, Clone)]
@@ -18,7 +19,7 @@ pub enum Operator {
     Subtract,
     Multiply,
     Divide,
-    Exp
+    Exp,
 }
 
 impl<'a> Parser<'a> {
@@ -26,9 +27,10 @@ impl<'a> Parser<'a> {
         Parser {
             tokens,
             current: 0,
-            ast: Vec::new()
+            ast: Vec::new(),
         }
     }
+
     fn parse_number(&mut self) -> Expr {
         if let Some(&Token::Number(value)) = self.tokens.get(self.current) {
             self.current += 1;
@@ -39,7 +41,24 @@ impl<'a> Parser<'a> {
             panic!("Expected a number")
         }
     }
-    fn parse_term(&mut self) {
+
+    fn parse_factor(&mut self) -> Expr {
+        match self.tokens.get(self.current) {
+            Some(&Token::OpenParen) => {
+                self.current += 1;
+                let expr = self.parse_term();
+                if let Some(&Token::CloseParen) = self.tokens.get(self.current) {
+                    self.current += 1;
+                    Expr::Paren(Box::new(expr))
+                } else {
+                    panic!("Expected closing parenthesis")
+                }
+            }
+            _ => self.parse_number(),
+        }
+    }
+
+    fn parse_term(&mut self) -> Expr {
         self.parse_factor();
         while let Some(&token) = self.tokens.get(self.current) {
             match token {
@@ -53,21 +72,25 @@ impl<'a> Parser<'a> {
                         Token::Multiply => Operator::Multiply,
                         Token::Divide => Operator::Divide,
                         Token::Exp => Operator::Exp,
-                        _ => unreachable!()
+                        _ => unreachable!(),
                     };
-                    self.ast.push(Expr::BinOp(Box::new(temp_expr), operator, Box::new(right_expr)));
+                    self.ast.push(Expr::BinOp(
+                        Box::new(temp_expr),
+                        operator,
+                        Box::new(right_expr),
+                    ));
                 }
-                _ => break
+                _ => break,
             }
         }
+        self.ast.pop().unwrap_or_else(|| panic!("Invalid expression"))
     }
-    fn parse_factor(&mut self) -> Expr {
-        self.parse_number()
-    }
+
     pub fn parse(&mut self) {
         self.parse_term();
     }
+
     pub fn get_ast(&self) -> &Vec<Expr> {
-        return &self.ast;
+        &self.ast
     }
 }

@@ -13,7 +13,7 @@ const FILE_PATH: &str = "C:/Users/ellio/OneDrive/Documents/GitHub/Compiler-in-Ru
 static file_path: &str = "./hello.txt";
 
 fn main() {
-    let fm: Result<FileMap, std::io::Error> = FileMap::new(file_path);
+    let fm: Result<FileMap, std::io::Error> = FileMap::new(FILE_PATH);
     let file_map: FileMap = fm.expect("Failed to create File Map");
     file_map.get_text();
     let mut lexer: Lexer = Lexer::new(file_map.as_slice());
